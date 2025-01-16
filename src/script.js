@@ -36,6 +36,18 @@ object3.position.x = 2
 
 scene.add(object1, object2, object3)
 
+
+// /**
+//  * Raycaster
+//  */
+const raycaster = new THREE.Raycaster()
+// Cast a ray
+const rayOrigin = new THREE.Vector3(-3, 0, 0);
+const rayDirection = new THREE.Vector3(1, 0, 0);
+rayDirection.normalize(); // make the length 1
+raycaster.set(rayOrigin, rayDirection);
+
+
 /**
  * Sizes
  */
@@ -85,18 +97,39 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 const clock = new THREE.Clock()
 
+const changeColorIfIntersects = (elapsedTime) => {
+  // Animate objects
+  object1.position.y = Math.sin(elapsedTime * 0.3) * 1.5;
+  object2.position.y = Math.sin(elapsedTime * 0.8) * 1.5;
+  object3.position.y = Math.sin(elapsedTime * 1.4) * 1.5;
+
+  const objectsToTest = [object1, object2, object3];
+  const intersects = raycaster.intersectObjects(objectsToTest);
+  console.log(intersects);
+
+  for (const object of objectsToTest) {
+    object.material.color.set("#ff0000");
+  }
+
+  for (const intersect of intersects) {
+    intersect.object.material.color.set("#0000ff");
+  }
+};
+
 const tick = () =>
 {
-    const elapsedTime = clock.getElapsedTime()
+  const elapsedTime = clock.getElapsedTime();
 
-    // Update controls
-    controls.update()
+  changeColorIfIntersects(elapsedTime);
 
-    // Render
-    renderer.render(scene, camera)
+  // Update controls
+  controls.update();
 
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
+  // Render
+  renderer.render(scene, camera);
+
+  // Call tick again on the next frame
+  window.requestAnimationFrame(tick);
 }
 
 tick()
