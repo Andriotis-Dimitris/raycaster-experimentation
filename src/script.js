@@ -99,6 +99,24 @@ window.addEventListener('mousemove', (event) =>
     // console.log(mouse)
 })
 
+window.addEventListener("click", () => {
+  if (currentIntersect) {
+    switch (currentIntersect.object) {
+      case object1:
+        console.log("click on object 1");
+        break;
+
+      case object2:
+        console.log("click on object 2");
+        break;
+
+      case object3:
+        console.log("click on object 3");
+        break;
+    }
+  }
+});
+
 /**
  * Animate
  */
@@ -128,22 +146,39 @@ const changeColorIfIntersects = (elapsedTime) => {
     intersect.object.material.color.set("#0000ff");
   }
 };
+
+let currentIntersect = null;
+
 const changeColorIfIntersectsWithMouse = (elapsedTime) => {
-  // Cast a ray
-  raycaster.setFromCamera(mouse, camera);
+    // Cast a ray
+    raycaster.setFromCamera(mouse, camera);
 
-  const objectsToTest = [object1, object2, object3];
-  const intersects = raycaster.intersectObjects(objectsToTest);
+    const objectsToTest = [object1, object2, object3];
+    const intersects = raycaster.intersectObjects(objectsToTest);
 
-  for (const intersect of intersects) {
+    for (const intersect of intersects) {
     intersect.object.material.color.set("#0000ff");
-  }
-
-  for (const object of objectsToTest) {
-    if (!intersects.find((intersect) => intersect.object === object)) {
-      object.material.color.set("#ff0000");
     }
-  }
+
+    for (const object of objectsToTest) {
+    if (!intersects.find((intersect) => intersect.object === object)) {
+        object.material.color.set("#ff0000");
+    }
+    }
+    if (intersects.length) {
+    if (!currentIntersect) {
+        console.log("mouse enter");
+    }
+
+    currentIntersect = intersects[0];
+    } else {
+    if (currentIntersect) {
+        console.log("mouse leave");
+    }
+
+    currentIntersect = null;
+    }
+
 };
 const tick = () =>
 {
