@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 /**
  * Base
@@ -35,6 +36,29 @@ const object3 = new THREE.Mesh(
 object3.position.x = 2
 
 scene.add(object1, object2, object3)
+/**
+ * Model
+ */
+let duck = null;
+const gltfLoader = new GLTFLoader()
+gltfLoader.load("./models/Duck/glTF-Binary/Duck.glb", (gltf) => {
+  duck = gltf.scene;
+  duck.position.y = -1.2;
+  scene.add(duck);
+});
+
+
+/**
+ * Lights
+ */
+// Ambient light
+const ambientLight = new THREE.AmbientLight('#ffffff', 0.9)
+scene.add(ambientLight)
+
+// Directional light
+const directionalLight = new THREE.DirectionalLight('#ffffff', 2.1)
+directionalLight.position.set(1, 2, 3)
+scene.add(directionalLight)
 
 
 // /**
@@ -129,63 +153,81 @@ const changeColorIfIntersects = (elapsedTime) => {
   rayDirection.normalize(); // make the length 1
   raycaster.set(rayOrigin, rayDirection);
 
-  // Animate objects
-  object1.position.y = Math.sin(elapsedTime * 0.3) * 1.5;
-  object2.position.y = Math.sin(elapsedTime * 0.8) * 1.5;
-  object3.position.y = Math.sin(elapsedTime * 1.4) * 1.5;
+  animateSpheres(elapsedTime);
 
   const objectsToTest = [object1, object2, object3];
-  const intersects = raycaster.intersectObjects(objectsToTest);
-  console.log(intersects);
+  const sphereIntersects = raycaster.intersectObjects(objectsToTest);
 
   for (const object of objectsToTest) {
     object.material.color.set("#ff0000");
   }
 
-  for (const intersect of intersects) {
+  for (const intersect of sphereIntersects) {
     intersect.object.material.color.set("#0000ff");
   }
 };
 
 let currentIntersect = null;
 
+const animateSpheres = (elapsedTime) => {
+  // Animate objects
+  object1.position.y = Math.sin(elapsedTime * 0.3) * 1.5;
+  object2.position.y = Math.sin(elapsedTime * 0.8) * 1.5;
+  object3.position.y = Math.sin(elapsedTime * 1.4) * 1.5;
+};
+
 const changeColorIfIntersectsWithMouse = (elapsedTime) => {
-    // Cast a ray
-    raycaster.setFromCamera(mouse, camera);
+    animateSpheres(elapsedTime);
+  // Cast a ray
+  raycaster.setFromCamera(mouse, camera);
 
-    const objectsToTest = [object1, object2, object3];
-    const intersects = raycaster.intersectObjects(objectsToTest);
+  const objectsToTest = [object1, object2, object3];
+  const sphereIntersects = raycaster.intersectObjects(objectsToTest);
 
-    for (const intersect of intersects) {
+  for (const intersect of sphereIntersects) {
     intersect.object.material.color.set("#0000ff");
-    }
+  }
 
-    for (const object of objectsToTest) {
-    if (!intersects.find((intersect) => intersect.object === object)) {
-        object.material.color.set("#ff0000");
+  for (const object of objectsToTest) {
+    if (!sphereIntersects.find((intersect) => intersect.object === object)) {
+      object.material.color.set("#ff0000");
     }
-    }
-    if (intersects.length) {
+  }
+  if (sphereIntersects.length) {
     if (!currentIntersect) {
-        console.log("mouse enter");
+      console.log("mouse enter");
     }
 
-    currentIntersect = intersects[0];
-    } else {
+    currentIntersect = sphereIntersects[0];
+  } else {
     if (currentIntersect) {
-        console.log("mouse leave");
+      console.log("mouse leave");
     }
 
     currentIntersect = null;
-    }
+  }
 
 };
-const tick = () =>
-{
+
+const increaseScaleOfDuckIfIntersects = () => {
+
+  if (duck) {
+    const duckIntersects = raycaster.intersectObject(duck);
+    if (duckIntersects.length) {
+      duck.scale.set(1.2, 1.2, 1.2);
+    } else {
+      duck.scale.set(1, 1, 1);
+    }
+  }
+
+}
+
+const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
 //   changeColorIfIntersects(elapsedTime);
   changeColorIfIntersectsWithMouse(elapsedTime);
+  increaseScaleOfDuckIfIntersects();
 
   // Update controls
   controls.update();
@@ -195,6 +237,6 @@ const tick = () =>
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
-}
+};
 
 tick()
