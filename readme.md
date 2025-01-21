@@ -1,3 +1,12 @@
+# About 
+Based on Three.js Journey
+Created to experiment with the raycaster within 3js.
+
+## Links
+
+- [GitHub](https://github.com/Andriotis-Dimitris/raycaster-experimentation)
+- [Live](https://raycaster-experimentation.vercel.app)
+
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
 Run this followed commands:
